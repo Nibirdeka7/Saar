@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Saar | Enterprise Knowledge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/styles.css?v=saar-light-1">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="brand-group">
+        <div class="logo">✦ SAAR <span class="logo-sub">Enterprise AI</span></div>
+        <span class="status-pill">● AWS-powered</span>
+      </div>
+
+      <nav class="top-nav" aria-label="Workspace navigation">
+        <button class="nav-tab active" id="chatTab">◈ Knowledge chat</button>
+        <button class="nav-tab" id="docsTab">▤ Documents</button>
+        <button class="nav-tab" id="approvalTab">✓ Approvals</button>
+        <button class="nav-tab" id="adminTab">◫ Metrics</button>
+      </nav>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="main-stage">
+      <!-- 1. KNOWLEDGE CHAT VIEW -->
+      <section id="chatView" class="view-section chat-view">
+        <div class="chat-toolbar">
+          <span class="workspace-badge">Single-workspace demo · No login</span>
+          <button type="button" id="newChat" class="secondary-btn">+ New conversation</button>
+        </div>
+
+        <!-- Centered Hero (Visible before first message) -->
+        <div id="chatHero" class="hero-section">
+          <div class="eyebrow">YOUR WORKSPACE / KNOWLEDGE</div>
+          <h1 id="heading">Ask your organization's knowledge.</h1>
+          <p class="subtitle">Query approved internal documents. Every response is guardrail-checked and backed by verifiable source passages.</p>
+
+          <div class="suggestions">
+            <button type="button" class="chip" data-q="What is our leave policy?">Leave policy ↗</button>
+            <button type="button" class="chip" data-q="Summarize the onboarding process">Onboarding process ↗</button>
+            <button type="button" class="chip" data-q="What are the IT security rules?">IT security rules ↗</button>
+          </div>
+        </div>
+
+        <!-- Scrollable Messages Stream -->
+        <div id="messages" class="messages-stream" aria-live="polite"></div>
+
+        <!-- LangGraph Stepped Progress Card -->
+        <div id="progress-container" class="progress-container hidden">
+          <div class="agent-status">
+            <div class="spinner"></div>
+            <div id="status-text" class="status-text">Checking input guardrails...</div>
+          </div>
+          <div class="progress-steps">
+            <div class="step active" id="step-guard">
+              <div class="step-icon">🛡️</div>
+              <div class="step-label">Guardrails</div>
+            </div>
+            <div class="step" id="step-retrieve">
+              <div class="step-icon">🔍</div>
+              <div class="step-label">Retrieving</div>
+            </div>
+            <div class="step" id="step-generate">
+              <div class="step-icon">✍️</div>
+              <div class="step-label">Synthesizing</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pill Composer -->
+        <div class="composer-wrapper">
+          <form id="chatForm" class="hero-form">
+            <input type="text" id="question" placeholder="Ask a question about company knowledge..." autocomplete="off" required>
+            <button type="submit" id="sendButton">
+              <span>Ask Saar</span>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </form>
+          <div class="hint">Answers may be inaccurate. Verify source passages before taking action.</div>
+        </div>
+      </section>
+
+      <!-- 2. DOCUMENTS VIEW -->
+      <section id="docsView" class="view-section panel-card hidden">
+        <div class="section-header">
+          <div>
+            <div class="eyebrow">DOCUMENT MANAGEMENT</div>
+            <h2>Knowledge library</h2>
+            <p class="muted-text">Upload an approved PDF, DOCX, TXT, or Markdown file. Use non-sensitive demo documents only.</p>
+          </div>
+        </div>
+
+        <form id="uploadForm" class="upload-bar">
+          <input id="file" type="file" accept=".pdf,.docx,.txt,.md" required>
+          <button type="submit" class="primary-btn">Upload & Index ↗</button>
+        </form>
+
+        <div id="docs" class="docs-list"></div>
+      </section>
+
+      <!-- 3. APPROVALS VIEW -->
+      <section id="approvalView" class="view-section panel-card hidden">
+        <div class="section-header">
+          <div>
+            <div class="eyebrow">GOVERNANCE & SAFETY</div>
+            <h2>Human-in-the-loop approvals</h2>
+            <p class="muted-text">Review pending requests. Approving records a decision only; no document is deleted or exported.</p>
+          </div>
+          <button type="button" id="refreshApprovals" class="secondary-btn">↻ Refresh</button>
+        </div>
+
+        <div id="approvalSummary" class="summary-banner" role="status"></div>
+        <div id="approvalList" aria-live="polite"></div>
+      </section>
+
+      <!-- 4. METRICS VIEW -->
+      <section id="adminView" class="view-section panel-card hidden">
+        <div class="section-header">
+          <div>
+            <div class="eyebrow">OBSERVABILITY</div>
+            <h2>Operational overview</h2>
+            <p class="muted-text">Real-time telemetry and guardrail enforcement events across your workspace.</p>
+          </div>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-box">
+            <h3>Workspace metrics</h3>
+            <pre id="metrics">Loading metrics...</pre>
+          </div>
+          <div class="metric-box">
+            <h3>Guardrail events</h3>
+            <pre id="guardrailMetrics">Loading guardrail metrics...</pre>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" role="status"></div>
+  <script src="/static/js/app.js?v=saar-light-1"></script>
+</body>
+</html>

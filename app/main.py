@@ -6,7 +6,6 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
-from app.observability import initialize
 from app.demo_context import principal, Principal
 from app.aws import client
 from app.config import settings
@@ -15,9 +14,6 @@ from app.rag import chat
 from app.guardrails import check_input, classify_input
 from app.memory import history, save_turn, list_messages
 from worker.ingest import process_s3_key
-
-initialize()
-
 
 BASE = Path(__file__).resolve().parent
 app = FastAPI(title='Atlas Enterprise RAG', docs_url='/api/docs')
