@@ -1,7 +1,10 @@
-// Simple single-workspace UI for Saar. No login, tokens, or user accounts.
+// Enterprise authenticated UI for Saar.
 const $ = id => document.getElementById(id);
 
-// Single-workspace conversation identifier, not an authentication token.
+let authToken = localStorage.getItem('saar_auth_token');
+let currentUser = null;
+
+// Single-workspace conversation identifier
 let conversationId = sessionStorage.getItem('saar_conversation_id') || crypto.randomUUID();
 sessionStorage.setItem('saar_conversation_id', conversationId);
 
@@ -13,14 +16,82 @@ const toast = msg => {
 };
 
 const api = async (path, options = {}) => {
+  const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  }
   const res = await fetch(path, {
     ...options,
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }
+    headers
   });
   const data = await res.json();
-  if (!res.ok) throw Error(data.detail || 'Request failed');
+  if (!res.ok) {
+    if (res.status === 401 && !path.startsWith('/api/auth/login') && !path.startsWith('/api/auth/register')) {
+      showAuthModal(true);
+    }
+    throw Error(data.detail || 'Request failed');
+  }
   return data;
 };
+
+function showAuthModal(show = true) {
+  const modal = $('authModal');
+  if (!modal) return;
+  if (show) {
+    modal.classList.remove('hidden');
+  } else {
+    modal.classList.add('hidden');
+  }
+}
+
+function updateAuthUI(user) {
+  currentUser = user;
+  const profile = $('userProfile');
+  const openBtn = $('loginOpenBtn');
+  const emailEl = $('userEmail');
+  const badgeEl = $('userRoleBadge');
+  const wsBadge = $('workspaceBadge');
+
+  if (user) {
+    if (profile) profile.classList.remove('hidden');
+    if (openBtn) openBtn.classList.add('hidden');
+    if (emailEl) {
+      emailEl.textContent = user.email;
+      emailEl.title = user.email;
+    }
+    if (badgeEl) {
+      badgeEl.textContent = user.admin ? 'Admin' : 'Member';
+      badgeEl.className = 'role-badge ' + (user.admin ? 'admin' : '');
+    }
+    if (wsBadge) {
+      wsBadge.textContent = `${user.tenant} · ${user.email}`;
+    }
+  } else {
+    if (profile) profile.classList.add('hidden');
+    if (openBtn) openBtn.classList.remove('hidden');
+    if (wsBadge) {
+      wsBadge.textContent = 'Not authenticated';
+    }
+  }
+}
+
+async function checkAuth() {
+  if (!authToken) {
+    updateAuthUI(null);
+    showAuthModal(true);
+    return;
+  }
+  try {
+    const user = await api('/api/auth/me');
+    updateAuthUI(user);
+    showAuthModal(false);
+  } catch (e) {
+    localStorage.removeItem('saar_auth_token');
+    authToken = null;
+    updateAuthUI(null);
+    showAuthModal(true);
+  }
+}
 
 // Reset conversation & restore centered hero
 $('newChat').onclick = () => {
@@ -319,3 +390,119 @@ async function loadApprovals() {
     console.error('Approvals loading failed:', e);
   }
 }
+
+// --- Auth Modal & Form Handlers ---
+if ($('authTabLogin')) {
+  $('authTabLogin').onclick = () => {
+    $('authTabLogin').classList.add('active');
+    $('authTabRegister').classList.remove('active');
+    $('loginForm').classList.remove('hidden');
+    $('registerForm').classList.add('hidden');
+    $('authTitle').textContent = 'Sign in to your account';
+    $('loginError').classList.add('hidden');
+  };
+}
+
+if ($('authTabRegister')) {
+  $('authTabRegister').onclick = () => {
+    $('authTabRegister').classList.add('active');
+    $('authTabLogin').classList.remove('active');
+    $('registerForm').classList.remove('hidden');
+    $('loginForm').classList.add('hidden');
+    $('authTitle').textContent = 'Create your account';
+    $('regError').classList.add('hidden');
+  };
+}
+
+if ($('loginOpenBtn')) {
+  $('loginOpenBtn').onclick = () => showAuthModal(true);
+}
+
+if ($('logoutBtn')) {
+  $('logoutBtn').onclick = async () => {
+    try {
+      await api('/api/auth/logout', { method: 'POST' });
+    } catch (e) {}
+    localStorage.removeItem('saar_auth_token');
+    authToken = null;
+    currentUser = null;
+    updateAuthUI(null);
+    showAuthModal(true);
+    toast('Signed out successfully');
+  };
+}
+
+if ($('loginForm')) {
+  $('loginForm').onsubmit = async e => {
+    e.preventDefault();
+    const errEl = $('loginError');
+    errEl.classList.add('hidden');
+    const email = $('loginEmail').value.trim();
+    const password = $('loginPassword').value;
+    const btn = $('loginSubmit');
+    btn.disabled = true;
+    btn.textContent = 'Signing in...';
+
+    try {
+      const r = await api('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password })
+      });
+      authToken = r.token;
+      localStorage.setItem('saar_auth_token', r.token);
+      updateAuthUI(r.user);
+      showAuthModal(false);
+      toast(`Welcome back, ${r.user.email}!`);
+      $('loginForm').reset();
+      if (!$('docsView').classList.contains('hidden')) loadDocs();
+      if (!$('adminView').classList.contains('hidden')) loadMetrics();
+      if (!$('approvalView').classList.contains('hidden')) loadApprovals();
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.classList.remove('hidden');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Sign in ↗';
+    }
+  };
+}
+
+if ($('registerForm')) {
+  $('registerForm').onsubmit = async e => {
+    e.preventDefault();
+    const errEl = $('regError');
+    errEl.classList.add('hidden');
+    const email = $('regEmail').value.trim();
+    const password = $('regPassword').value;
+    const tenant = $('regTenant').value.trim() || 'demo-workspace';
+    const admin = $('regAdmin').checked;
+    const btn = $('regSubmit');
+    btn.disabled = true;
+    btn.textContent = 'Creating account...';
+
+    try {
+      const r = await api('/api/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({ email, password, tenant, admin })
+      });
+      authToken = r.token;
+      localStorage.setItem('saar_auth_token', r.token);
+      updateAuthUI(r.user);
+      showAuthModal(false);
+      toast(`Account created! Welcome, ${r.user.email}`);
+      $('registerForm').reset();
+      if (!$('docsView').classList.contains('hidden')) loadDocs();
+      if (!$('adminView').classList.contains('hidden')) loadMetrics();
+      if (!$('approvalView').classList.contains('hidden')) loadApprovals();
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.classList.remove('hidden');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Create account ↗';
+    }
+  };
+}
+
+// Initial session verification
+checkAuth();

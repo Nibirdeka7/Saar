@@ -24,6 +24,16 @@
         <button class="nav-tab" id="approvalTab">✓ Approvals</button>
         <button class="nav-tab" id="adminTab">◫ Metrics</button>
       </nav>
+
+      <div class="header-user-section">
+        <div id="userProfile" class="user-profile-pill hidden">
+          <span class="user-avatar">👤</span>
+          <span id="userEmail" class="user-email-text"></span>
+          <span id="userRoleBadge" class="role-badge">Member</span>
+          <button type="button" id="logoutBtn" class="logout-btn" title="Sign out">Sign out ⎋</button>
+        </div>
+        <button type="button" id="loginOpenBtn" class="secondary-btn auth-open-btn hidden">Sign in ↗</button>
+      </div>
     </header>
 
     <!-- Main Workspace -->
@@ -31,7 +41,7 @@
       <!-- 1. KNOWLEDGE CHAT VIEW -->
       <section id="chatView" class="view-section chat-view">
         <div class="chat-toolbar">
-          <span class="workspace-badge">Single-workspace demo · No login</span>
+          <span id="workspaceBadge" class="workspace-badge">Enterprise Workspace</span>
           <button type="button" id="newChat" class="secondary-btn">+ New conversation</button>
         </div>
 
@@ -146,6 +156,61 @@
   </div>
 
   <div id="toast" role="status"></div>
-  <script src="/static/js/app.js?v=saar-light-1"></script>
+
+  <!-- Auth Modal Overlay -->
+  <div id="authModal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="logo">✦ SAAR <span class="logo-sub">Enterprise AI</span></div>
+        <h2 id="authTitle" class="auth-heading">Sign in to your account</h2>
+        <p class="auth-subheading">Enter your email and password to access enterprise knowledge.</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab-btn active" id="authTabLogin">Sign in</button>
+        <button type="button" class="auth-tab-btn" id="authTabRegister">Create account</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form-content">
+        <div class="auth-field">
+          <label for="loginEmail">Email address</label>
+          <input type="email" id="loginEmail" placeholder="name@company.com" required autocomplete="email">
+        </div>
+        <div class="auth-field">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <div id="loginError" class="auth-alert error hidden"></div>
+        <button type="submit" id="loginSubmit" class="primary-btn auth-submit-btn">Sign in ↗</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="registerForm" class="auth-form-content hidden">
+        <div class="auth-field">
+          <label for="regEmail">Work Email</label>
+          <input type="email" id="regEmail" placeholder="name@company.com" required autocomplete="email">
+        </div>
+        <div class="auth-field">
+          <label for="regPassword">Password (6+ characters)</label>
+          <input type="password" id="regPassword" placeholder="••••••••" minlength="6" required autocomplete="new-password">
+        </div>
+        <div class="auth-field">
+          <label for="regTenant">Workspace ID</label>
+          <input type="text" id="regTenant" value="demo-workspace" required>
+        </div>
+        <div class="auth-field checkbox-field">
+          <label class="custom-checkbox">
+            <input type="checkbox" id="regAdmin">
+            <span>Grant workspace administrator permissions (Approvals, Guardrails)</span>
+          </label>
+        </div>
+        <div id="regError" class="auth-alert error hidden"></div>
+        <button type="submit" id="regSubmit" class="primary-btn auth-submit-btn">Create account ↗</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js?v=saar-auth-1"></script>
 </body>
 </html>

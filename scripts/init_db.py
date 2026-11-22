@@ -8,7 +8,7 @@ import os
 ROOT = Path(__file__).resolve().parents[1]
 load_dotenv(ROOT / '.env')
 SCHEMA = ROOT / 'infra' / 'schema.sql'
-REQUIRED = ('documents', 'feedback', 'audit_events', 'approvals', 'chat_messages')
+REQUIRED = ('users', 'documents', 'feedback', 'audit_events', 'approvals', 'chat_messages')
 
 
 def main():

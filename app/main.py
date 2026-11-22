@@ -6,7 +6,16 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
-from app.demo_context import principal, Principal
+from app.auth import (
+    principal,
+    Principal,
+    hash_password,
+    verify_password,
+    create_access_token,
+    get_user_by_email,
+    create_user,
+    EMAIL_REGEX,
+)
 from app.aws import client
 from app.config import settings
 from app.db import connection, audit
@@ -36,10 +45,112 @@ class Feedback(BaseModel):
     note: str = Field(default='', max_length=500)
 
 
+class RegisterRequest(BaseModel):
+    email: str = Field(min_length=3, max_length=120)
+    password: str = Field(min_length=6, max_length=100)
+    tenant: str = Field(default='demo-workspace', min_length=1, max_length=60)
+    admin: bool = False
+
+
+class LoginRequest(BaseModel):
+    email: str = Field(min_length=3, max_length=120)
+    password: str = Field(min_length=1, max_length=100)
+
+
+@app.post('/api/auth/register')
+def register(body: RegisterRequest):
+    email = body.email.strip().lower()
+    if not EMAIL_REGEX.match(email):
+        raise HTTPException(400, 'Invalid email address format')
+    if len(body.password) < 6:
+        raise HTTPException(400, 'Password must be at least 6 characters')
+
+    role = 'admin' if body.admin else 'member'
+    pwd_hash = hash_password(body.password)
+
+    with connection() as conn:
+        existing = get_user_by_email(conn, email)
+        if existing:
+            raise HTTPException(409, 'A user with this email already exists')
+        user = create_user(conn, email, pwd_hash, body.tenant, role)
+        audit(conn, email, body.tenant, 'user_registered', {'email': email, 'role': role})
+
+    groups = ['workspace', role] if role == 'admin' else ['workspace']
+    token = create_access_token({
+        'sub': email,
+        'uid': str(user['id']),
+        'email': email,
+        'tenant': user['tenant_id'],
+        'role': role,
+        'admin': role == 'admin',
+        'groups': groups,
+    })
+    return {
+        'token': token,
+        'token_type': 'bearer',
+        'user': {
+            'id': str(user['id']),
+            'email': email,
+            'tenant': user['tenant_id'],
+            'role': role,
+            'admin': role == 'admin',
+        }
+    }
+
+
+@app.post('/api/auth/login')
+def login(body: LoginRequest):
+    email = body.email.strip().lower()
+    with connection() as conn:
+        user = get_user_by_email(conn, email)
+        if not user or not verify_password(body.password, user['password_hash']):
+            raise HTTPException(401, 'Invalid email or password')
+        role = user['role']
+        audit(conn, email, user['tenant_id'], 'user_logged_in', {'email': email})
+
+    groups = ['workspace', role] if role == 'admin' else ['workspace']
+    token = create_access_token({
+        'sub': email,
+        'uid': str(user['id']),
+        'email': email,
+        'tenant': user['tenant_id'],
+        'role': role,
+        'admin': role == 'admin',
+        'groups': groups,
+    })
+    return {
+        'token': token,
+        'token_type': 'bearer',
+        'user': {
+            'id': str(user['id']),
+            'email': email,
+            'tenant': user['tenant_id'],
+            'role': role,
+            'admin': role == 'admin',
+        }
+    }
+
+
+@app.get('/api/auth/me')
+def me(p: Principal = Depends(principal)):
+    return {
+        'email': p.email or p.subject,
+        'tenant': p.tenant,
+        'admin': p.admin,
+        'groups': list(p.groups),
+        'subject': p.subject,
+    }
+
+
+@app.post('/api/auth/logout')
+def logout():
+    return {'status': 'ok', 'message': 'Logged out successfully'}
+
+
 @app.get('/', response_class=HTMLResponse)
 def home(request: Request):
     return templates.TemplateResponse('index.html', {'request': request, 'region': settings().aws_region,
-                                                     'mode': 'single-workspace demo'})
+                                                     'mode': 'authenticated-workspace'})
 
 
 @app.get('/health/live')

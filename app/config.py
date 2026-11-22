@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     min_relevance:float=0.25
     hitl_enabled:bool=True
     memory_turns:int=6
+    auth_secret_key:str='production-rag-auth-secret-key-atlas-enterprise-rag-2026'
+    auth_token_expire_hours:int=24
 
 
 @lru_cache

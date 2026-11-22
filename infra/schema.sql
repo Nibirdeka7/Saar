@@ -1,3 +1,14 @@
+CREATE TABLE IF NOT EXISTS users (
+ id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+ email text UNIQUE NOT NULL,
+ password_hash text NOT NULL,
+ tenant_id text NOT NULL DEFAULT 'demo-workspace',
+ role text NOT NULL DEFAULT 'member' CHECK(role IN ('admin','member')),
+ created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS users_email_idx ON users(email);
+
 CREATE TABLE IF NOT EXISTS documents (
  id uuid PRIMARY KEY, tenant_id text NOT NULL, title text NOT NULL, owner_sub text NOT NULL,
  allowed_groups text[] NOT NULL, s3_key text NOT NULL UNIQUE,
