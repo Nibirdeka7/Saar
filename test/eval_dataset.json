@@ -1,0 +1,98 @@
+[
+  {
+    "id": "kw-1",
+    "category": "exact_keyword",
+    "history": [],
+    "question": "What are the rules under SEC-402 for production AWS sessions?",
+    "expected_title": "novacore_handbook_benchmark.md",
+    "expected_keywords": ["FIDO2", "WebAuthn", "4 hours"],
+    "answerable": true
+  },
+  {
+    "id": "kw-2",
+    "category": "exact_keyword",
+    "history": [],
+    "question": "How long are logs retained under policy SEC-419?",
+    "expected_title": "novacore_handbook_benchmark.md",
+    "expected_keywords": ["7 years", "2,555 days", "SOC 2"],
+    "answerable": true
+  },
+  {
+    "id": "kw-3",
+    "category": "exact_keyword",
+    "history": [],
+    "question": "What is the exact cap in FIN-209 for home-office gear?",
+    "expected_title": "novacore_handbook_benchmark.md",
+    "expected_keywords": ["18,500", "30 days"],
+    "answerable": true
+  },
+  {
+    "id": "sem-1",
+    "category": "semantic",
+    "history": [],
+    "question": "If I don't use all my vacation days this year, how many roll over and when do they expire?",
+    "expected_title": "novacore_handbook_benchmark.md",
+    "expected_keywords": ["8 days", "March 31"],
+    "answerable": true
+  },
+  {
+    "id": "sem-2",
+    "category": "semantic",
+    "history": [],
+    "question": "How quickly must I report a suspected stolen password or phishing email?",
+    "expected_title": "novacore_handbook_benchmark.md",
+    "expected_keywords": ["30 minutes", "secops@novacore.internal"],
+    "answerable": true
+  },
+  {
+    "id": "sem-3",
+    "category": "semantic",
+    "history": [],
+    "question": "What is the screen lock timeout and disk encryption requirement for company laptops?",
+    "expected_title": "novacore_handbook_benchmark.md",
+    "expected_keywords": ["BitLocker", "FileVault", "5 minutes"],
+    "answerable": true
+  },
+  {
+    "id": "fu-1",
+    "category": "multi_turn",
+    "history": [
+      {"role": "user", "content": "What is NovaCore's parental leave policy?"},
+      {"role": "assistant", "content": "Primary caregivers receive 16 weeks of paid leave and secondary caregivers receive 4 weeks."}
+    ],
+    "question": "Does it apply to contractors?",
+    "expected_title": "novacore_handbook_benchmark.md",
+    "expected_keywords": ["not eligible", "Contractors"],
+    "answerable": true
+  },
+  {
+    "id": "fu-2",
+    "category": "multi_turn",
+    "history": [
+      {"role": "user", "content": "Tell me about domestic travel rules in FIN-209."},
+      {"role": "assistant", "content": "Domestic flights must be economy class and booked 14 days ahead."}
+    ],
+    "question": "What is the daily food allowance for that?",
+    "expected_title": "novacore_handbook_benchmark.md",
+    "expected_keywords": ["1,800"],
+    "answerable": true
+  },
+  {
+    "id": "unans-1",
+    "category": "unanswerable",
+    "history": [],
+    "question": "What is NovaCore's stock ticker symbol and Q4 revenue?",
+    "expected_title": "",
+    "expected_keywords": [],
+    "answerable": false
+  },
+  {
+    "id": "unans-2",
+    "category": "unanswerable",
+    "history": [],
+    "question": "What is the Wi-Fi password for the Bengaluru office?",
+    "expected_title": "",
+    "expected_keywords": [],
+    "answerable": false
+  }
+]

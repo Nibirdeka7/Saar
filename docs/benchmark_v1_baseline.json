@@ -1,0 +1,124 @@
+{
+  "summary": {
+    "total_cases": 10,
+    "recall_at_5_pct": 25.0,
+    "mrr": 0.25,
+    "fact_recall_pct": 50.0,
+    "faithfulness_pct": 11.25,
+    "refusal_accuracy_pct": 100.0,
+    "p50_latency_ms": 3243.8,
+    "p95_latency_ms": 4469.6
+  },
+  "records": [
+    {
+      "id": "kw-1",
+      "category": "exact_keyword",
+      "latency_ms": 9113.5,
+      "hit_rank": 1,
+      "keyword_recall": 1.0,
+      "faithfulness": 0.9,
+      "refused_correctly": null,
+      "num_sources": 1,
+      "answer_preview": "According to the provided evidence, the rules under SEC-402 for production AWS environments are as follows:\n\n1. **Hardware MFA Requirement**: All production AWS"
+    },
+    {
+      "id": "kw-2",
+      "category": "exact_keyword",
+      "latency_ms": 3095.6,
+      "hit_rank": null,
+      "keyword_recall": 1.0,
+      "faithfulness": 0.0,
+      "refused_correctly": null,
+      "num_sources": 2,
+      "answer_preview": "According to the provided evidence, customer audit logs are retained in immutable S3 Object Lock storage for 7 years (2,555 days) in compliance with SOC 2 Type "
+    },
+    {
+      "id": "kw-3",
+      "category": "exact_keyword",
+      "latency_ms": 3037.8,
+      "hit_rank": null,
+      "keyword_recall": 0.0,
+      "faithfulness": 0.0,
+      "refused_correctly": null,
+      "num_sources": 0,
+      "answer_preview": "I could not find supporting evidence in documents you are authorized to access."
+    },
+    {
+      "id": "sem-1",
+      "category": "semantic",
+      "latency_ms": 3119.6,
+      "hit_rank": null,
+      "keyword_recall": 0.0,
+      "faithfulness": 0.0,
+      "refused_correctly": null,
+      "num_sources": 0,
+      "answer_preview": "I could not find supporting evidence in documents you are authorized to access."
+    },
+    {
+      "id": "sem-2",
+      "category": "semantic",
+      "latency_ms": 4469.6,
+      "hit_rank": null,
+      "keyword_recall": 0.0,
+      "faithfulness": 0.0,
+      "refused_correctly": null,
+      "num_sources": 0,
+      "answer_preview": "I could not find supporting evidence in documents you are authorized to access."
+    },
+    {
+      "id": "sem-3",
+      "category": "semantic",
+      "latency_ms": 3739.3,
+      "hit_rank": 1,
+      "keyword_recall": 1.0,
+      "faithfulness": 0.0,
+      "refused_correctly": null,
+      "num_sources": 2,
+      "answer_preview": "According to the provided evidence, the screen lock timeout for company laptops is set to auto-lock after 5 minutes of inactivity, and they must enforce full-di"
+    },
+    {
+      "id": "fu-1",
+      "category": "multi_turn",
+      "latency_ms": 3522.1,
+      "hit_rank": null,
+      "keyword_recall": 1.0,
+      "faithfulness": 0.0,
+      "refused_correctly": null,
+      "num_sources": 1,
+      "answer_preview": "Based on the provided evidence, NovaCore's parental leave policy does not apply to contractors. Here is the relevant passage:\n\n[1] \"Contractors and interns are "
+    },
+    {
+      "id": "fu-2",
+      "category": "multi_turn",
+      "latency_ms": 2408.5,
+      "hit_rank": null,
+      "keyword_recall": 0.0,
+      "faithfulness": 0.0,
+      "refused_correctly": null,
+      "num_sources": 0,
+      "answer_preview": "I could not find supporting evidence in documents you are authorized to access."
+    },
+    {
+      "id": "unans-1",
+      "category": "unanswerable",
+      "latency_ms": 3368.1,
+      "hit_rank": null,
+      "keyword_recall": null,
+      "faithfulness": null,
+      "refused_correctly": true,
+      "num_sources": 1,
+      "answer_preview": "I cannot find an authorized answer regarding NovaCore's stock ticker symbol and Q4 revenue in the provided evidence. The evidence only includes information abou"
+    },
+    {
+      "id": "unans-2",
+      "category": "unanswerable",
+      "latency_ms": 2078.7,
+      "hit_rank": null,
+      "keyword_recall": null,
+      "faithfulness": null,
+      "refused_correctly": true,
+      "num_sources": 0,
+      "answer_preview": "I could not find supporting evidence in documents you are authorized to access."
+    }
+  ]
+}

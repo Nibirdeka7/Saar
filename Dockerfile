@@ -5,6 +5,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt && useradd -r -u 10001 atlas
 COPY app ./app
 COPY worker ./worker
+COPY infra ./infra
+COPY scripts ./scripts
 USER atlas
 EXPOSE 8000
 CMD ["uvicorn","app.main:app","--host","0.0.0.0","--port","8000","--proxy-headers"]

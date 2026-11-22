@@ -50,3 +50,17 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 );
 
 CREATE INDEX IF NOT EXISTS chat_messages_session_idx ON chat_messages(tenant_id,conversation_id,id DESC);
+
+CREATE TABLE IF NOT EXISTS parent_chunks (
+    parent_id TEXT PRIMARY KEY,
+    document_id TEXT NOT NULL,
+    tenant_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    page_number INT NOT NULL DEFAULT 1,
+    section TEXT NOT NULL DEFAULT '',
+    content TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_parent_chunks_tenant ON parent_chunks (tenant_id);
+CREATE INDEX IF NOT EXISTS idx_parent_chunks_doc ON parent_chunks (document_id);

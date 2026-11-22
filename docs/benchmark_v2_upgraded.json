@@ -1,0 +1,124 @@
+{
+  "summary": {
+    "total_cases": 10,
+    "recall_at_5_pct": 37.5,
+    "mrr": 0.2917,
+    "fact_recall_pct": 100.0,
+    "faithfulness_pct": 32.5,
+    "refusal_accuracy_pct": 100.0,
+    "p50_latency_ms": 18004.6,
+    "p95_latency_ms": 19425.3
+  },
+  "records": [
+    {
+      "id": "kw-1",
+      "category": "exact_keyword",
+      "latency_ms": 18156.6,
+      "hit_rank": 3,
+      "keyword_recall": 1.0,
+      "faithfulness": 0.7,
+      "refused_correctly": null,
+      "num_sources": 5,
+      "answer_preview": "Under SEC-402, the rules for production AWS sessions are as follows:\n\n1. All production AWS environments require hardware MFA (FIDO2/WebAuthn) [1][2][3].\n2. Tem"
+    },
+    {
+      "id": "kw-2",
+      "category": "exact_keyword",
+      "latency_ms": 12155.3,
+      "hit_rank": null,
+      "keyword_recall": 1.0,
+      "faithfulness": 0.0,
+      "refused_correctly": null,
+      "num_sources": 5,
+      "answer_preview": "Customer audit logs are retained in immutable S3 Object Lock storage for 7 years (2,555 days) in compliance with SOC 2 Type II controls [1][2][3]."
+    },
+    {
+      "id": "kw-3",
+      "category": "exact_keyword",
+      "latency_ms": 19425.3,
+      "hit_rank": null,
+      "keyword_recall": 1.0,
+      "faithfulness": 0.0,
+      "refused_correctly": null,
+      "num_sources": 2,
+      "answer_preview": "According to the evidence provided, the cap for home-office equipment stipends in FIN-209 is INR 18,500 per fiscal year [1]. This amount requires manager approv"
+    },
+    {
+      "id": "sem-1",
+      "category": "semantic",
+      "latency_ms": 19339.8,
+      "hit_rank": 1,
+      "keyword_recall": 1.0,
+      "faithfulness": 0.9,
+      "refused_correctly": null,
+      "num_sources": 3,
+      "answer_preview": "According to the provided evidence, full-time employees accrue 24 days of Paid Time Off (PTO) per calendar year at a rate of 2.0 days per month [1][2]. Unused P"
+    },
+    {
+      "id": "sem-2",
+      "category": "semantic",
+      "latency_ms": 18740.7,
+      "hit_rank": null,
+      "keyword_recall": 1.0,
+      "faithfulness": 1.0,
+      "refused_correctly": null,
+      "num_sources": 5,
+      "answer_preview": "According to the retrieved evidence, suspected credential leaks or phishing incidents must be reported to `secops@novacore.internal` within 30 minutes of discov"
+    },
+    {
+      "id": "sem-3",
+      "category": "semantic",
+      "latency_ms": 15669.0,
+      "hit_rank": 1,
+      "keyword_recall": 1.0,
+      "faithfulness": 0.0,
+      "refused_correctly": null,
+      "num_sources": 2,
+      "answer_preview": "According to the provided evidence, the screen lock timeout for company laptops is set to auto-lock after 5 minutes of inactivity, and they must enforce full-di"
+    },
+    {
+      "id": "fu-1",
+      "category": "multi_turn",
+      "latency_ms": 16733.1,
+      "hit_rank": null,
+      "keyword_recall": 1.0,
+      "faithfulness": 0.0,
+      "refused_correctly": null,
+      "num_sources": 2,
+      "answer_preview": "Based on the provided evidence, the parental leave policy does not apply to contractors. Here is the relevant passage:\n\n> Contractors and interns are not eligib"
+    },
+    {
+      "id": "fu-2",
+      "category": "multi_turn",
+      "latency_ms": 19461.1,
+      "hit_rank": null,
+      "keyword_recall": 1.0,
+      "faithfulness": 0.0,
+      "refused_correctly": null,
+      "num_sources": 1,
+      "answer_preview": "The daily food allowance for domestic travel, as per the provided evidence, is INR 1,800 per day [1].\n\n[1] novacore_handbook_benchmark.md (Page 1, Section: Nova"
+    },
+    {
+      "id": "unans-1",
+      "category": "unanswerable",
+      "latency_ms": 17852.6,
+      "hit_rank": null,
+      "keyword_recall": null,
+      "faithfulness": null,
+      "refused_correctly": true,
+      "num_sources": 3,
+      "answer_preview": "I cannot find an authorized answer to your question regarding NovaCore's stock ticker symbol and Q4 revenue. The provided evidence does not contain information "
+    },
+    {
+      "id": "unans-2",
+      "category": "unanswerable",
+      "latency_ms": 9325.6,
+      "hit_rank": null,
+      "keyword_recall": null,
+      "faithfulness": null,
+      "refused_correctly": true,
+      "num_sources": 1,
+      "answer_preview": "I cannot find an authorized answer regarding the Wi-Fi password for the Bengaluru office in the provided evidence. The evidence pertains to policies on leave, e"
+    }
+  ]
+}

@@ -23,6 +23,16 @@ class Settings(BaseSettings):
     memory_turns:int=6
     auth_secret_key:str='production-rag-auth-secret-key-atlas-enterprise-rag-2026'
     auth_token_expire_hours:int=24
+    bedrock_rerank_model:str='cohere.rerank-v3-5:0'
+    parent_chunk_size:int=1800
+    parent_chunk_overlap:int=200
+    child_chunk_size:int=400
+    child_chunk_overlap:int=60
+    vector_top_k:int=20
+    bm25_top_k:int=20
+    hybrid_top_k:int=15
+    rerank_top_n:int=5
+    max_context_chars:int=7500
 
 
 @lru_cache

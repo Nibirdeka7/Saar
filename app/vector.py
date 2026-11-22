@@ -53,7 +53,9 @@ def namespace(tenant):
 def upsert(tenant, records):
     return index().upsert(vectors=records, namespace=namespace(tenant))
 
-def search(tenant, vector, groups, owner, limit=5):
+def search(tenant, vector, groups, owner, limit=None):
+    if limit is None:
+        limit = settings().vector_top_k
     acl = {'$or': [{'allowed_groups': {'$in': list(groups)}},
                    {'owner_sub': {'$eq': owner}}]}
     result = index().query(
