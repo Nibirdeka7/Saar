@@ -60,26 +60,26 @@ The system features **email and password authentication** with PBKDF2-HMAC-SHA25
 
 ```mermaid
 flowchart TD
-    subgraph Client ["Client Layer"]
+    subgraph Client["Client Layer"]
         UI["Web Browser (HTML5 / Vanilla JS / CSS3)"]
     end
 
-    subgraph AppServer ["Application Server (FastAPI / EC2)"]
-        AUTH["Authentication & RBAC Middleware\n(PBKDF2 / JWT)"]
-        API["FastAPI REST Endpoints\n(/api/documents, /api/chat, /api/auth)"]
+    subgraph AppServer["Application Server (FastAPI / EC2)"]
+        AUTH["Authentication & RBAC Middleware<br/>(PBKDF2 / JWT)"]
+        API["FastAPI REST Endpoints<br/>(/api/documents, /api/chat, /api/auth)"]
         GRAPH["LangGraph Orchestration Pipeline"]
-        INGEST["Document Ingestion Engine\n(worker/ingest.py)"]
+        INGEST["Document Ingestion Engine<br/>(worker/ingest.py)"]
     end
 
-    subgraph AWS ["Amazon Web Services"]
-        S3["Amazon S3\n(Document Storage)"]
-        BEDROCK["Amazon Bedrock\n(Nova Lite / Titan Embeddings / Cohere Rerank)"]
-        ECR["Amazon ECR\n(Docker Image Registry)"]
+    subgraph AWS["Amazon Web Services"]
+        S3["Amazon S3<br/>(Document Storage)"]
+        BEDROCK["Amazon Bedrock<br/>(Nova Lite / Titan Embeddings / Cohere Rerank)"]
+        ECR["Amazon ECR<br/>(Docker Image Registry)"]
     end
 
-    subgraph External ["External Datastores"]
-        PINECONE["Pinecone Serverless\n(Child Vectors / 1,024-dim)"]
-        POSTGRES["PostgreSQL on Render\n(Users / Parent Chunks / Memory / Approvals)"]
+    subgraph External["External Datastores"]
+        PINECONE["Pinecone Serverless<br/>(Child Vectors / 1,024-dim)"]
+        POSTGRES["PostgreSQL on Render<br/>(Users / Parent Chunks / Memory / Approvals)"]
     end
 
     UI -->|"1. Authenticate (Email & Password)"| AUTH
@@ -96,9 +96,9 @@ flowchart TD
 
     UI -->|"4. Ask Question (Bearer Token)"| API
     API --> GRAPH
-    GRAPH <-->|"Execute Workflow & Rerank"| BEDROCK
-    GRAPH <-->|"Dense Search"| PINECONE
-    GRAPH <-->|"BM25 Search & Parent Context Recovery"| POSTGRES
+    GRAPH -->|"Execute Workflow & Rerank"| BEDROCK
+    GRAPH -->|"Dense Vector Search"| PINECONE
+    GRAPH -->|"BM25 & Parent Context Recovery"| POSTGRES
 ```
 
 ---
@@ -137,32 +137,32 @@ The core query execution pipeline coordinates guardrails, contextual query expan
 
 ```mermaid
 flowchart TD
-    START([User Query + Conversation History]) --> Guard[app.guardrails: check_input\nDetect Prompt Injection & Blocked Topics]
+    START(["User Query + Conversation History"]) --> Guard["app.guardrails: check_input<br/>Detect Prompt Injection & Blocked Topics"]
     
-    Guard --> Rewrite[app.rag: rewrite_queries\nBedrock Contextual Pronoun Resolution & Expansion]
+    Guard --> Rewrite["app.rag: rewrite_queries<br/>Bedrock Contextual Pronoun Resolution & Expansion"]
     
-    subgraph Hybrid_Retrieval ["Hybrid Retrieval & Context Recovery"]
-        Rewrite --> Dense[Pinecone Dense Search\nvector_top_k=20, Tenant & ACL Scoped]
-        Rewrite --> Sparse[PostgreSQL BM25 Search\nScoped to parent_chunks by tenant_id, top_k=20]
+    subgraph Hybrid_Retrieval["Hybrid Retrieval & Context Recovery"]
+        Rewrite --> Dense["Pinecone Dense Search<br/>vector_top_k=20, Tenant & ACL Scoped"]
+        Rewrite --> Sparse["PostgreSQL BM25 Search<br/>Scoped to parent_chunks by tenant_id, top_k=20"]
         
-        Dense --> RRF[Reciprocal Rank Fusion\nScore = Sum of 1 / (60 + Rank)]
+        Dense --> RRF["Reciprocal Rank Fusion<br/>Score = Sum of 1 / (60 + Rank)"]
         Sparse --> RRF
         
-        RRF --> ParentRecovery[Parent Context Recovery\nFetch 1,800-char parent_chunks from PostgreSQL]
+        RRF --> ParentRecovery["Parent Context Recovery<br/>Fetch 1,800-char parent_chunks from PostgreSQL"]
     end
     
-    ParentRecovery --> Rerank[app.rag: rerank_passages\nAmazon Bedrock Rerank / Cohere v3.5\nDeterministic Pure-Python Overlap Fallback]
+    ParentRecovery --> Rerank["app.rag: rerank_passages<br/>Amazon Bedrock Rerank / Cohere v3.5<br/>Deterministic Pure-Python Overlap Fallback"]
     
-    Rerank --> Refine[app.rag: refine_passages\nmin_relevance=0.25 & max_context_chars=7,500]
+    Rerank --> Refine["app.rag: refine_passages<br/>min_relevance=0.25 & max_context_chars=7500"]
     
-    Refine --> RouteDecision{Relevant Evidence Found?}
+    Refine --> RouteDecision{"Relevant Evidence Found?"}
     
-    RouteDecision -- "Yes (Score >= 0.25)" --> Generate[app.aws: Bedrock Converse Nova Lite\nStrict Evidence Quotation & Numbered Citations]
-    RouteDecision -- "No Evidence" --> Refusal[app.graph: no_evidence\nAuthorized Refusal Without Hallucination]
+    RouteDecision -- "Yes (Score >= 0.25)" --> Generate["app.aws: Bedrock Converse Nova Lite<br/>Strict Evidence Quotation & Numbered Citations"]
+    RouteDecision -- "No Evidence" --> Refusal["app.graph: no_evidence<br/>Authorized Refusal Without Hallucination"]
     
-    Generate --> Validate[app.guardrails: check_output\nSensitive Data & PII Redaction]
+    Generate --> Validate["app.guardrails: check_output<br/>Sensitive Data & PII Redaction"]
     
-    Validate --> Response([Final Grounded Answer + Source Metadata])
+    Validate --> Response(["Final Grounded Answer + Source Metadata"])
     Refusal --> Response
 ```
 
@@ -173,12 +173,20 @@ flowchart TD
 A rigorous benchmark test was executed across the standardized evaluation dataset ([`test/eval_dataset.json`](file:///d:/Projects/Production-RAG/test/eval_dataset.json)) with benchmark handbook [`docs/novacore_handbook_benchmark.md`](file:///d:/Projects/Production-RAG/docs/novacore_handbook_benchmark.md) comparing the baseline v1 implementation against the upgraded v2 system.
 
 ```mermaid
-xychart-beta
-    title "RAG Pipeline Performance Comparison: v1 Baseline vs v2 Upgraded"
-    x-axis ["Fact Recall %", "Faithfulness %", "Recall @ 5 %", "MRR (x100)"]
-    y-axis "Percentage / Score" 0 --> 100
-    bar [50.0, 11.25, 25.0, 25.0]
-    bar [100.0, 32.5, 37.5, 29.17]
+flowchart LR
+    subgraph Baseline["v1 Baseline RAG"]
+        B1["Fact Recall: 50.0%"]
+        B2["Faithfulness: 11.25%"]
+        B3["Recall @ 5: 25.0%"]
+        B4["MRR: 0.2500"]
+    end
+    subgraph Upgraded["v2 Advanced RAG"]
+        U1["Fact Recall: 100.0% (+50.0%)"]
+        U2["Faithfulness: 32.5% (+21.25%)"]
+        U3["Recall @ 5: 37.5% (+12.5%)"]
+        U4["MRR: 0.2917 (+0.0417)"]
+    end
+    Baseline ==>|"Upgraded to Hybrid + Parent Chunks + Reranking"| Upgraded
 ```
 
 ### Empirical Results Summary
@@ -397,29 +405,28 @@ The deployment workflow ([`.github/workflows/cicd.yaml`](file:///d:/Projects/Pro
 
 ```mermaid
 flowchart LR
-    DEV([Developer]) -->|"git push origin main"| GITHUB[GitHub Repository]
+    DEV(["Developer"]) --> GITHUB["GitHub Repository"]
+    GITHUB --> CHECKOUT
     
-    subgraph CI ["Stage 1: Continuous Integration"]
-        GITHUB --> CHECKOUT[Checkout Code]
-        CHECKOUT --> SYNTAX["Syntax Check (compileall)"]
+    subgraph CI["Stage 1: Continuous Integration"]
+        CHECKOUT["Checkout Code"] --> SYNTAX["Syntax Check (compileall)"]
         SYNTAX --> TEST["Unit Tests (pytest)"]
     end
     
-    subgraph CD_Build ["Stage 2: Continuous Delivery"]
-        TEST --> DOCKER_BUILD["docker build -t image:sha"]
-        DOCKER_BUILD --> ECR_PUSH["Push to Amazon ECR"]
+    subgraph CD_Build["Stage 2: Continuous Delivery"]
+        DOCKER_BUILD["docker build -t image:sha"] --> ECR_PUSH["Push to Amazon ECR"]
     end
     
-    subgraph CD_Deploy ["Stage 3: EC2 Deployment"]
-        ECR_PUSH --> RUNNER["Self-Hosted Runner on EC2 (saar-ec2)"]
-        RUNNER --> PULL["docker pull image:sha"]
-        PULL --> MIGRATE["Run DB Migrations (init_db.py)"]
+    subgraph CD_Deploy["Stage 3: EC2 Deployment"]
+        PULL["docker pull image:sha"] --> MIGRATE["Run DB Migrations (init_db.py)"]
         MIGRATE --> STOP_OLD["docker rm -f saar-enterprise-ai"]
         STOP_OLD --> RUN_NEW["docker run -d --restart unless-stopped"]
         RUN_NEW --> HEALTH["Verify /health/live & /health/ready"]
     end
     
-    HEALTH --> SUCCESS([Production Deployment Verified])
+    TEST --> DOCKER_BUILD
+    ECR_PUSH --> PULL
+    HEALTH --> SUCCESS(["Production Deployment Verified"])
 ```
 
 ### Required GitHub Secrets & Variables
